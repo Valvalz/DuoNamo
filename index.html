@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#17132d">
+  <title>DuoVerse — Nosso Mundinho</title>
+  <link rel="stylesheet" href="./style.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"
+      }
+    }
+  </script>
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+  <script src="./config.js"></script>
+  <script type="module" src="./game.js"></script>
+</head>
+<body>
+  <main id="lobby" class="screen">
+    <div class="brand-mark">♡</div>
+    <p class="eyebrow">UM UNIVERSO SÓ DE VOCÊS</p>
+    <h1>Duo<span>Verse</span></h1>
+    <p class="intro">Explore, decore e construa um cantinho só de vocês.</p>
+    <section class="panel">
+      <label for="playerName">Seu nome no jogo</label>
+      <input id="playerName" maxlength="18" placeholder="Como quer aparecer?" autocomplete="nickname">
+      <button id="createBtn" class="primary">＋ Criar nosso mundinho</button>
+      <div class="separator"><span>ou entrar com convite</span></div>
+      <label for="roomCode">Código da sala</label>
+      <input id="roomCode" maxlength="6" placeholder="Ex.: A1B2C3" autocapitalize="characters">
+      <button id="joinBtn" class="secondary">Entrar na sala</button>
+      <p id="lobbyMessage" class="message" role="status"></p>
+    </section>
+    <p class="footnote">Jogo experimental · funciona no navegador do celular e computador</p>
+  </main>
+
+  <main id="gameScreen" class="hidden">
+    <div id="scene"></div>
+    <header class="hud">
+      <div class="hud-brand"><span class="heart">♡</span><div><strong>DuoVerse</strong><small id="roomLabel">Sala</small></div></div>
+      <div class="hud-stats"><div class="stat"><span>🪙</span><strong id="money">100</strong></div><div class="stat"><span>🌱</span><strong id="tasks">0</strong></div></div>
+      <button id="shareBtn" class="icon-button" aria-label="Compartilhar convite" title="Compartilhar convite">↗</button>
+    </header>
+    <div class="welcome-pill" id="welcomePill">Bem-vindo ao seu mundinho!</div>
+    <section id="taskCard" class="task-card">
+      <div class="panel-toolbar">
+        <div class="panel-tabs" role="tablist" aria-label="Atividades, loja e personagem">
+          <button id="activitiesTab" class="panel-tab active" role="tab" aria-selected="true">✨ Tarefas</button>
+          <button id="shopTab" class="panel-tab" role="tab" aria-selected="false">🛍 Loja</button>
+          <button id="characterTab" class="panel-tab" role="tab" aria-selected="false">👤 Visual</button>
+        </div>
+        <button id="panelToggle" class="panel-toggle" aria-expanded="true" aria-controls="panelContent">Esconder</button>
+      </div>
+      <div id="panelContent">
+        <div id="activitiesPanel" role="tabpanel">
+          <div class="task-heading"><div><strong>Pequenas atividades</strong><small>Ganhe moedas no seu ritmo</small></div></div>
+          <button class="task-button" data-task="garden"><span>🌷</span><span><b>Cuidar do jardim</b><small>Recompensa: +20 moedas</small></span><span class="plus">+</span></button>
+          <button class="task-button" data-task="tidy"><span>🧹</span><span><b>Arrumar a casa</b><small>Recompensa: +15 moedas</small></span><span class="plus">+</span></button>
+          <button class="task-button" data-task="cook"><span>🍓</span><span><b>Preparar um lanche</b><small>Recompensa: +25 moedas</small></span><span class="plus">+</span></button>
+          <p id="taskMessage" class="task-message" aria-live="polite"></p>
+        </div>
+        <div id="shopPanel" class="hidden" role="tabpanel">
+          <div class="task-heading"><div><strong>Deixe o quintal com a cara de vocês</strong><small>Escolha e toque no chão para colocar</small></div></div>
+          <button class="shop-item" data-item="tree"><span>🌳</span><span><b>Árvore</b><small>Uma sombra gostosa</small></span><strong>35 🪙</strong></button>
+          <button class="shop-item" data-item="flower"><span>🌼</span><span><b>Canteiro</b><small>Flores coloridas</small></span><strong>15 🪙</strong></button>
+          <button class="shop-item" data-item="bench"><span>🪑</span><span><b>Banco</b><small>Para curtir juntinhos</small></span><strong>50 🪙</strong></button>
+          <button id="upgradeHouseBtn" class="shop-item"><span>🏡</span><span><b>Ampliar a casa</b><small id="houseUpgradeLabel">Nova ala para o lar</small></span><strong id="houseUpgradeCost">180 🪙</strong></button>
+          <button id="cancelPlacementBtn" class="cancel-placement hidden">Cancelar colocação</button>
+          <p id="shopMessage" class="task-message" aria-live="polite">Os itens ficam visíveis para os dois jogadores.</p>
+        </div>
+        <div id="characterPanel" class="hidden" role="tabpanel">
+          <div class="task-heading"><div><strong>Seu personagem</strong><small>Escolha o visual que combina com você</small></div></div>
+          <p class="appearance-label">Personagem</p>
+          <div class="appearance-options">
+            <button class="appearance-choice" data-character="male" aria-pressed="false">👨 Homem</button>
+            <button class="appearance-choice" data-character="female" aria-pressed="false">👩 Mulher</button>
+          </div>
+          <p class="appearance-label">Roupa</p>
+          <div class="outfit-options" aria-label="Escolha a cor da roupa">
+            <button class="outfit-choice" data-outfit="lavender" style="--outfit-color:#8b5cf6" aria-label="Roxo" aria-pressed="false"></button>
+            <button class="outfit-choice" data-outfit="pink" style="--outfit-color:#f472b6" aria-label="Rosa" aria-pressed="false"></button>
+            <button class="outfit-choice" data-outfit="blue" style="--outfit-color:#38bdf8" aria-label="Azul" aria-pressed="false"></button>
+            <button class="outfit-choice" data-outfit="green" style="--outfit-color:#34d399" aria-label="Verde" aria-pressed="false"></button>
+            <button class="outfit-choice" data-outfit="sunshine" style="--outfit-color:#facc15" aria-label="Amarelo" aria-pressed="false"></button>
+          </div>
+          <p id="appearanceMessage" class="task-message" aria-live="polite">As mudanças aparecem para os dois.</p>
+        </div>
+      </div>
+    </section>
+    <div class="controls-hint">Arraste o direcional para andar · toque na tela para girar a câmera</div>
+    <div class="mobile-controls" aria-label="Controles de movimento">
+      <div id="joystick" class="joystick"><div id="stick" class="stick"></div></div>
+      <button id="homeBtn" class="home-button" title="Voltar à casa">⌂</button>
+    </div>
+    <div id="playerList" class="player-list"></div>
+    <button id="leaveBtn" class="leave-button">Sair da sala</button>
+    <div id="toast" class="toast" role="status"></div>
+  </main>
+</body>
+</html>
