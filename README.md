@@ -50,7 +50,7 @@ A Vercel serve a página estática; o servidor Socket.IO precisa continuar rodan
    ```
 
 3. Envie essa alteração ao GitHub.
-4. Na Vercel, importe o mesmo repositório. Deixe o **Root Directory** como `./` e use o `vercel.json` detectado pelo projeto.
+4. Na Vercel, importe o mesmo repositório. Deixe o **Root Directory** como `./` (raiz do repositório); o `vercel.json` publica a pasta `public/`.
 5. Depois do deploy, abra a URL `.vercel.app`.
 
 Se o frontend e o servidor estiverem hospedados em serviços diferentes, configure no Render a variável de ambiente `CLIENT_URL` com a URL do site Vercel para permitir a conexão multiplayer. Se mudar o domínio Vercel, atualize essa variável.
